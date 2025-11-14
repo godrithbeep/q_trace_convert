@@ -12,7 +12,6 @@ def local_css():
             color: #34E09F;  /* main green color */
             padding-bottom: 5px;
         }
-
         /* Subtitle / Authorized */
         .authorized {
             font-size: 14px !important;
@@ -20,24 +19,13 @@ def local_css():
             margin-bottom: 25px;
             font-style: italic;
         }
-
-        /* Card container */
-        .card {
-            padding: 25px;
-            border-radius: 12px;
-            background-color: #e6fff5;  /* light green background */
-            box-shadow: 0px 2px 8px rgba(0,0,0,0.08);
-            margin-bottom: 20px;
-        }
-
         /* Footer */
         .footer {
             text-align: center;
-            margin-top: 40px;
+            margin-top: 30px;
             font-size: 12px;
             color: #34E09F;
         }
-
         /* Buttons */
         .stButton>button {
             background-color: #34E09F;
@@ -62,27 +50,18 @@ st.markdown('<div class="authorized">Authorized by Ngo Danh Thai ® — Sales Op
 col1, col2 = st.columns([1.2, 1])
 
 with col1:
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-
     st.subheader("📤 Upload SAP File")
-    st.write("Please upload the SAP Excel file (.xlsx) to convert it into the standardized template format.")
-
     uploaded_file = st.file_uploader("Choose SAP File", type=["xlsx"])
     convert_btn = st.button("🚀 Convert File", use_container_width=True)
 
-    st.markdown('</div>', unsafe_allow_html=True)
-
 with col2:
-    st.markdown('<div class="card">', unsafe_allow_html=True)
     st.subheader("📥 Output File")
-
     if convert_btn:
         if uploaded_file:
             with st.spinner("Processing file…"):
                 try:
                     buffer, filename = convert_sap_to_template(uploaded_file)
-                    st.success("✔ Conversion completed successfully!")
-
+                    st.success("✔ Conversion completed!")
                     st.download_button(
                         label="⬇ Download Converted File",
                         data=buffer,
@@ -90,13 +69,10 @@ with col2:
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                         use_container_width=True
                     )
-
                 except Exception as e:
                     st.error(f"❌ Error: {e}")
         else:
-            st.warning("⚠ Please upload a file before converting.")
-    
-    st.markdown('</div>', unsafe_allow_html=True)
+            st.warning("⚠ Please upload a file first.")
 
 # ========= FOOTER ==========
 st.markdown(
