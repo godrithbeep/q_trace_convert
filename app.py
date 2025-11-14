@@ -1,73 +1,105 @@
 import streamlit as st
-import base64
+from convert_sap_to_template import convert_sap_to_template
 
-# ---- PAGE CONFIG ----
-st.set_page_config(page_title="Order Management System", layout="centered")
+# ===== CUSTOM CSS =====
+def local_css():
+    css = """
+    <style>
+        /* Title */
+        .title {
+            font-size: 30px !important;
+            font-weight: 800 !important;
+            color: #34E09F;  /* main green color */
+            padding-bottom: 5px;
+        }
 
-# ---- BACKGROUND GIF ----
-# Replace the GIF link with yours
-gif_url = "https://lh3.googleusercontent.com/proxy/kjrf6Y_jVTpZA9bxVsLDwzRgXUx0MxKAD_ka-yRsIGCHTFjGsFyC4jK_rf4JzDyKJ-O0vny_-yQoSz5FqWFMomOWu0fWj2lnyurug8dq2L8"
+        /* Subtitle / Authorized */
+        .authorized {
+            font-size: 14px !important;
+            color: #2e7d5e;  /* darker green */
+            margin-bottom: 25px;
+            font-style: italic;
+        }
 
-page_bg = f"""
-<style>
-[data-testid="stAppViewContainer"] {{
-    background: url("{gif_url}");
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    opacity: 0.92;   /* Lower this to dim more */
-}}
+        /* Card container */
+        .card {
+            padding: 25px;
+            border-radius: 12px;
+            background-color: #e6fff5;  /* light green background */
+            box-shadow: 0px 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
 
-[data-testid="stHeader"] {{
-    background: rgba(0,0,0,0);
-}}
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 12px;
+            color: #34E09F;
+        }
 
-.main-glass {{
-    background: rgba(255, 255, 255, 0.65);
-    padding: 3rem;
-    border-radius: 25px;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    box-shadow: 0 4px 40px rgba(0, 128, 0, 0.25);
-    max-width: 750px;
-    margin: auto;
-    border: 1px solid rgba(255,255,255,0.35);
-}}
+        /* Buttons */
+        .stButton>button {
+            background-color: #34E09F;
+            color: white;
+            border-radius: 8px;
+        }
+        .stButton>button:hover {
+            background-color: #2bb78a;  /* darker green on hover */
+        }
+    </style>
+    """
+    st.markdown(css, unsafe_allow_html=True)
 
-h1, h2, h3, label {{
-    color: #0d5e33 !important;  /* Professional green */
-}}
+# Apply custom CSS
+local_css()
 
-.stButton>button {{
-    background-color: #1d8f4a !important;
-    color: white !important;
-    border-radius: 10px !important;
-    padding: 0.6rem 1.2rem;
-    border: none;
-}}
-</style>
-"""
+# ========= TITLE & HEADER ==========
+st.markdown('<div class="title">SAP to Standard Template Converter</div>', unsafe_allow_html=True)
+st.markdown('<div class="authorized">Authorized by Ngo Danh Thai ® — Sales Operation Data Executive, MPS</div>', unsafe_allow_html=True)
 
-st.markdown(page_bg, unsafe_allow_html=True)
+# ========= MAIN LAYOUT ==========
+col1, col2 = st.columns([1.2, 1])
 
-# ---- HEADER ----
+with col1:
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+
+    st.subheader("📤 Upload SAP File")
+    st.write("Please upload the SAP Excel file (.xlsx) to convert it into the standardized template format.")
+
+    uploaded_file = st.file_uploader("Choose SAP File", type=["xlsx"])
+    convert_btn = st.button("🚀 Convert File", use_container_width=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+with col2:
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.subheader("📥 Output File")
+
+    if convert_btn:
+        if uploaded_file:
+            with st.spinner("Processing file…"):
+                try:
+                    buffer, filename = convert_sap_to_template(uploaded_file)
+                    st.success("✔ Conversion completed successfully!")
+
+                    st.download_button(
+                        label="⬇ Download Converted File",
+                        data=buffer,
+                        file_name=filename,
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        use_container_width=True
+                    )
+
+                except Exception as e:
+                    st.error(f"❌ Error: {e}")
+        else:
+            st.warning("⚠ Please upload a file before converting.")
+    
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# ========= FOOTER ==========
 st.markdown(
-    "<h2 style='text-align:center; font-weight:600;'>Authorized by Ngo Danh Thai ®<br> Sales Operation Data Executive at MPS</h2>",
+    '<div class="footer">© 2025 MPS Operations Data System — All rights reserved.</div>',
     unsafe_allow_html=True
 )
-
-# ---- MAIN CONTENT BOX ----
-with st.container():
-    st.markdown("<div class='main-glass'>", unsafe_allow_html=True)
-
-    st.markdown("## 🌿 Order Management Dashboard")
-    st.write("Welcome to your professionally designed green-themed management system.")
-
-    st.text_input("Order ID")
-    st.text_input("Customer Name")
-    st.number_input("Quantity", min_value=1)
-    st.selectbox("Status", ["Pending", "Processing", "Delivered"])
-
-    st.button("Submit Order")
-
-    st.markdown("</div>", unsafe_allow_html=True)
